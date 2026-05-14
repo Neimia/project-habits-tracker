@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ habit.name }}</h1>
+    <div>
+        <a href="/habits/{{ habit.id }}/check" class="btn btn-success">отметить</a>
+        <a href="/habits" class="btn btn-secondary">назад</a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>о привычке</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>описание:</strong> {{ habit.description or 'нет описания' }}</p>
+                <p><strong>создана:</strong> {{ habit.created_date.strftime('%d.%m.%Y') }}</p>
+                <p><strong>всего отметок:</strong> {{ total_checks }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>последние 30 дней</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for date, checked in calendar_data.items() %}
+                    <div class="col-2 text-center mb-2">
+                        <div class="p-2 {% if checked %}bg-success text-white{% else %}bg-light{% endif %}"
+                             style="border-radius: 8px;">
+                            {{ date.strftime('%d.%m') }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>история</h5>
+    </div>
+    <div class="card-body">
+        {% if checks %}
+        <ul class="list-group">
+            {% for check in checks %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ check.check_date.strftime('%d.%m.%Y') }} в {{ check.checked_at.strftime('%H:%M') }}</span>
+                <form method="POST" action="/habits/{{ habit.id }}/check/{{ check.id }}/delete"
+                      style="display: inline;">
+                    <button type="submit" class="btn btn-sm btn-danger"
+                            onclick="return confirm('удалить отметку за {{ check.check_date.strftime('%d.%m.%Y') }}?')">
+                        удалить
+                    </button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>пока нет отметок</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
